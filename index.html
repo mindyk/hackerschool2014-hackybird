@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+</head>
+<body>
+<canvas id="game" width="640" height="480" style="border:1px solid #000;"></canvas>
+<script>
+	var canvas = document.getElementById('game'),
+			ctx = canvas.getContext('2d'),
+			bgImg = new Image(),
+			birdImg = new Image(),
+			pipeUpImg = new Image(),
+			pipeDownImg = new Image();
+
+			Game = {
+
+				c : null,
+				resolution : {w:null, h: null},
+				xB : 100,
+				yB : 100,
+				vB : 0,
+				vG : -3,
+				vS : 1,
+				xBg: 0,
+				xP : 200,
+				dead : false,
+
+				init : function (ctx, w, h, bgImg, birdImg, pipeUpImg, pipeDownImg) {
+					console.log('init');
+					Game.c = ctx;
+
+					Game.resolution.w = w;
+					Game.resolution.h = h;
+
+					Game.bgImg = bgImg;
+					Game.birdImg = birdImg;
+					Game.pipeUpImg = pipeUpImg;
+					Game.pipeDownImg = pipeDownImg;
+				},
+
+				draw : function () {
+					requestAnimationFrame(Game.draw);
+					Game.c.clearRect(0,0, Game.resolution.w, Game.resolution.h);
+
+					//console.log(Game.xBg);
+					Game.c.drawImage(Game.bgImg, Game.xBg, 0, Game.resolution.w, Game.resolution.h);
+					Game.c.drawImage(Game.bgImg, Game.xBg + Game.resolution.w , 0, Game.resolution.w, Game.resolution.h);
+
+					Game.c.drawImage(Game.birdImg, Game.xB,Game.yB);
+
+					Game.c.drawImage(Game.pipeUpImg, Game.xP, 300);
+					Game.c.drawImage(Game.pipeDownImg, Game.xP, -180);
+					Game.c.fillStyle = 'red';
+					Game.c.fillRect(0, 137, Game.resolution.w, 1);
+					Game.c.fillRect(0, 300, Game.resolution.w, 1);
+					Game.c.fillRect(Game.xP, 0, 1, Game.resolution.h);
+					Game.c.fillRect(Game.xP+52, 0, 1, Game.resolution.h);
+				},
+
+				start : function () {
+					Game.update();
+				},
+
+				update : function () {
+					//console.log(Game.xBg,'update');
+					if (Game.dead == true) {
+						return;
+					}
+
+					Game.xBg -= Game.vS;
+					Game.xP -= Game.vS;
+					if (Game.xBg <= Game.resolution.w * -1) {
+						Game.xBg = 0;
+					}
+
+					if (Game.vB > 0) {
+						Game.vB -= 1;
+					}
+
+					Game.yB -= Game.vB + Game.vG;
+
+					if (Game.yB >= Game.resolution.h / 2) {
+						//Game.vB += 15;
+					}
+
+					if (Game.yB >= Game.resolution.h - 47) {
+						alert('dead');
+						Game.dead = true;
+					}
+
+					if (Game.xB +35  >= Game.xP && Game.xB +35 <= Game.xP + 52) {
+						//alert('check collision');
+						if (Game.yB + 25< 137) {
+							alert('dead');
+							Game.dead = true;
+						}
+
+						if (Game.yB + 25 > 300) {
+							alert('dead');
+							Game.dead = true;
+						}
+					}
+
+					setTimeout(Game.update, 1000/60);
+				}
+			};
+
+	bgImg.src = 'bg.png';
+	bgImg.onload = function () {
+		console.log('bg onload');
+	};
+	birdImg.src = 'bird.png';
+	pipeUpImg.src = 'pipe-up.png';
+	pipeDownImg.src = 'pipe-down.png';
+
+
+	(function() {
+		Game.init(ctx, 640, 480, bgImg, birdImg, pipeUpImg, pipeDownImg);
+		requestAnimationFrame(Game.draw);
+		Game.start();
+	})();
+
+
+</script>
+</body>
+</html>
